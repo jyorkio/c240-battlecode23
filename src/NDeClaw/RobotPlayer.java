@@ -1,11 +1,9 @@
-package examplefuncsplayer;
+package NDeClaw;
 
 import battlecode.common.*;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -152,8 +150,8 @@ public strictfp class RobotPlayer {
                 rc.setIndicatorString("Moving my anchor towards " + islandLocation);
                 while (!rc.getLocation().equals(islandLocation)) {
                     Direction dir = rc.getLocation().directionTo(islandLocation);
-                    if (rc.canMove(Direction.NORTH)) {
-                        rc.move(Direction.NORTH);
+                    if (rc.canMove(dir)) {
+                        rc.move(dir);
                     }
                 }
                 if (rc.canPlaceAnchor()) {
@@ -170,7 +168,7 @@ public strictfp class RobotPlayer {
                 if (rc.canCollectResource(wellLocation, -1)) {
                     if (rng.nextBoolean()) {
                         rc.collectResource(wellLocation, -1);
-                        rc.setIndicatorString("Collecting, now have, AD:" + 
+                        rc.setIndicatorString("Collecting, now have, AD:" +
                             rc.getResourceAmount(ResourceType.ADAMANTIUM) + 
                             " MN: " + rc.getResourceAmount(ResourceType.MANA) + 
                             " EX: " + rc.getResourceAmount(ResourceType.ELIXIR));
@@ -212,12 +210,12 @@ public strictfp class RobotPlayer {
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
-        if (enemies.length >= 0) {
+        if (enemies.length >= 1) {
             // MapLocation toAttack = enemies[0].location;
             MapLocation toAttack = rc.getLocation().add(Direction.EAST);
 
             if (rc.canAttack(toAttack)) {
-                rc.setIndicatorString("Attacking");        
+                rc.setIndicatorString("Attacking");
                 rc.attack(toAttack);
             }
         }
