@@ -1,8 +1,6 @@
 package thebettercompbot;
 
 import battlecode.common.*;
-import thebettercompbot.Communication;
-import thebettercompbot.RobotPlayer;
 
 public class CarrierStrategy {
     
@@ -21,9 +19,14 @@ public class CarrierStrategy {
         if (RobotPlayer.turnCount == 2) {
             Communication.updateHeadquarterInfo(rc);
         }
-        if(hqLoc == null) scanHQ(rc);
-        if(wellLoc == null) scanWells(rc);
-        scanIslands(rc);
+        if ((rc.getRoundNum(RobotController rc)) < 101) {
+            getResources(RobotController rc);
+            else {
+                //run anchorBot 2 out of 10 times
+            }
+
+
+        }
 
         //Collect from well if close and inventory not full
         if(wellLoc != null && rc.canCollectResource(wellLoc, -1)) rc.collectResource(wellLoc, -1);
@@ -68,6 +71,32 @@ public class CarrierStrategy {
             }
         }
         Communication.tryWriteMessages(rc);
+    }
+    // carrier focused on gathering resources
+    static void getResources(RobotController rc) throws GameActionException {
+        if(hqLoc == null) scanHQ(rc);
+        if(wellLoc == null) scanWells(rc);
+        scanIslands(rc);
+        //Collect from well if close and inventory not full
+        if(wellLoc != null && rc.canCollectResource(wellLoc, -1)) rc.collectResource(wellLoc, -1);
+        //Transfer resource to headquarters
+        depositResource(rc, ResourceType.ADAMANTIUM);
+        depositResource(rc, ResourceType.MANA);
+        int total = getTotalResources(rc);
+        if(total == 0) {
+            //move towards well or search for well
+            if(wellLoc == null) RobotPlayer.moveRandom(rc);
+            else if(!rc.getLocation().isAdjacentTo(wellLoc)) RobotPlayer.moveTowards(rc, wellLoc);
+        }
+        if(total == GameConstants.CARRIER_CAPACITY) {
+            //move towards HQ
+            RobotPlayer.moveTowards(rc, hqLoc);
+        }
+    }
+
+    // carrier focused on placing anchors
+    static void anchorBot(RobotController rc) throws GameActionException {
+
     }
 
     static void scanHQ(RobotController rc) throws GameActionException {
