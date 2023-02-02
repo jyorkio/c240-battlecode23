@@ -23,12 +23,15 @@ public class CarrierStrategy {
             getResources(RobotController rc);
             else {
                 //run anchorBot 2 out of 10 times
+                if(rc.canTakeAnchor(hqLoc, Anchor.STANDARD)) {
+                    anchorBot(RobotController rc);
+                }
+
             }
 
 
         }
-
-        //Collect from well if close and inventory not full
+     /*   //Collect from well if close and inventory not full
         if(wellLoc != null && rc.canCollectResource(wellLoc, -1)) rc.collectResource(wellLoc, -1);
 
         //Transfer resource to headquarters
@@ -39,7 +42,7 @@ public class CarrierStrategy {
             rc.takeAnchor(hqLoc, Anchor.STANDARD);
             anchorMode = true;
         }
-        
+
         //no resources -> look for well
         if(anchorMode) {
             if(islandLoc == null) {
@@ -51,7 +54,7 @@ public class CarrierStrategy {
                     }
                 }
             }
-            else RobotPlayer.moveTowards(rc, islandLoc); 
+            else RobotPlayer.moveTowards(rc, islandLoc);
 
             if(rc.canPlaceAnchor() && rc.senseTeamOccupyingIsland(rc.senseIsland(rc.getLocation())) == Team.NEUTRAL) {
                 rc.placeAnchor();
@@ -71,7 +74,7 @@ public class CarrierStrategy {
             }
         }
         Communication.tryWriteMessages(rc);
-    }
+    }*/
     // carrier focused on gathering resources
     static void getResources(RobotController rc) throws GameActionException {
         if(hqLoc == null) scanHQ(rc);
@@ -96,6 +99,23 @@ public class CarrierStrategy {
 
     // carrier focused on placing anchors
     static void anchorBot(RobotController rc) throws GameActionException {
+        rc.takeAnchor(hqLoc, Anchor.STANDARD);
+        anchorMode = true;
+        if(islandLoc == null) {
+            for (int i = Communication.STARTING_ISLAND_IDX; i < Communication.STARTING_ISLAND_IDX + GameConstants.MAX_NUMBER_ISLANDS; i++) {
+                MapLocation islandNearestLoc = Communication.readIslandLocation(rc, i);
+                if (islandNearestLoc != null) {
+                    islandLoc = islandNearestLoc;
+                    break;
+                }
+            }
+        }
+        else RobotPlayer.moveTowards(rc, islandLoc);
+        if(rc.canPlaceAnchor() && rc.senseTeamOccupyingIsland(rc.senseIsland(rc.getLocation())) == Team.NEUTRAL) {
+            rc.placeAnchor();
+            anchorMode = false;
+        }
+
 
     }
 
