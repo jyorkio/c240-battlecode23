@@ -19,24 +19,30 @@ public class CarrierStrategy {
         if (RobotPlayer.turnCount == 2) {
             Communication.updateHeadquarterInfo(rc);
         }
-        if ((rc.getRoundNum(RobotController rc)) < 101) {
-            getResources(RobotController rc);
-            else {
-                //run anchorBot 2 out of 10 times
-                if(rc.canTakeAnchor(hqLoc, Anchor.STANDARD)) {
-                    anchorBot(RobotController rc);
-                }
+        if(hqLoc == null) scanHQ(rc);
+        if(wellLoc == null) scanWells(rc);
+        scanIslands(rc);
 
-            }
-
-
-        }
-     /*   //Collect from well if close and inventory not full
+        //Collect from well if close and inventory not full
         if(wellLoc != null && rc.canCollectResource(wellLoc, -1)) rc.collectResource(wellLoc, -1);
 
         //Transfer resource to headquarters
         depositResource(rc, ResourceType.ADAMANTIUM);
         depositResource(rc, ResourceType.MANA);
+        //upgrade Adamantium well if available resources
+        int totalAdam = rc.getResourceAmount(ResourceType.ADAMANTIUM);
+        if (totalAdam > 1400 & rc.canTransferResource(wellLoc, ResourceType.ADAMANTIUM, 1400)) {
+            rc.transferResource(wellLoc, ResourceType.ADAMANTIUM, 1400);
+        }
+        // upgrade mana well is possible
+        int totalMana = rc.getResourceAmount(ResourceType.MANA);
+        if (totalMana > 1400 & rc.canTransferResource(wellLoc, ResourceType.MANA, 1400)) {
+            rc.transferResource(wellLoc, ResourceType.MANA, 1400);
+        }
+        if(rc.canTakeAnchor(hqLoc, Anchor.ACCELERATING)){
+            rc.takeAnchor(hqLoc, Anchor.ACCELERATING);
+            anchorMode = true;
+        }
 
         if(rc.canTakeAnchor(hqLoc, Anchor.STANDARD)) {
             rc.takeAnchor(hqLoc, Anchor.STANDARD);
@@ -46,15 +52,15 @@ public class CarrierStrategy {
         //no resources -> look for well
         if(anchorMode) {
             if(islandLoc == null) {
-                for (int i = Communication.STARTING_ISLAND_IDX; i < Communication.STARTING_ISLAND_IDX + GameConstants.MAX_NUMBER_ISLANDS; i++) {
-                    MapLocation islandNearestLoc = Communication.readIslandLocation(rc, i);
+                for (int i = thebettercompbot.Communication.STARTING_ISLAND_IDX; i < thebettercompbot.Communication.STARTING_ISLAND_IDX + GameConstants.MAX_NUMBER_ISLANDS; i++) {
+                    MapLocation islandNearestLoc = thebettercompbot.Communication.readIslandLocation(rc, i);
                     if (islandNearestLoc != null) {
                         islandLoc = islandNearestLoc;
                         break;
                     }
                 }
             }
-            else RobotPlayer.moveTowards(rc, islandLoc);
+            else thebettercompbot.RobotPlayer.moveTowards(rc, islandLoc);
 
             if(rc.canPlaceAnchor() && rc.senseTeamOccupyingIsland(rc.senseIsland(rc.getLocation())) == Team.NEUTRAL) {
                 rc.placeAnchor();
@@ -65,18 +71,20 @@ public class CarrierStrategy {
             int total = getTotalResources(rc);
             if(total == 0) {
                 //move towards well or search for well
-                if(wellLoc == null) RobotPlayer.moveRandom(rc);
-                else if(!rc.getLocation().isAdjacentTo(wellLoc)) RobotPlayer.moveTowards(rc, wellLoc);
+                if(wellLoc == null) thebettercompbot.RobotPlayer.moveRandom(rc);
+                else if(!rc.getLocation().isAdjacentTo(wellLoc)) thebettercompbot.RobotPlayer.moveTowards(rc, wellLoc);
             }
             if(total == GameConstants.CARRIER_CAPACITY) {
                 //move towards HQ
-                RobotPlayer.moveTowards(rc, hqLoc);
+                thebettercompbot.RobotPlayer.moveTowards(rc, hqLoc);
             }
         }
-        Communication.tryWriteMessages(rc);
-    }*/
+        thebettercompbot.Communication.tryWriteMessages(rc);
+    }
+    //    Communication.tryWriteMessages(rc);
     // carrier focused on gathering resources
     static void getResources(RobotController rc) throws GameActionException {
+        System.out.println("Resource bot is running");
         if(hqLoc == null) scanHQ(rc);
         if(wellLoc == null) scanWells(rc);
         scanIslands(rc);
@@ -101,6 +109,7 @@ public class CarrierStrategy {
     static void anchorBot(RobotController rc) throws GameActionException {
         rc.takeAnchor(hqLoc, Anchor.STANDARD);
         anchorMode = true;
+        System.out.println("Anchor bot is running");
         if(islandLoc == null) {
             for (int i = Communication.STARTING_ISLAND_IDX; i < Communication.STARTING_ISLAND_IDX + GameConstants.MAX_NUMBER_ISLANDS; i++) {
                 MapLocation islandNearestLoc = Communication.readIslandLocation(rc, i);
@@ -115,8 +124,6 @@ public class CarrierStrategy {
             rc.placeAnchor();
             anchorMode = false;
         }
-
-
     }
 
     static void scanHQ(RobotController rc) throws GameActionException {

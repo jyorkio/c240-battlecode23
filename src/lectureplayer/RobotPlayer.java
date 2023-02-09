@@ -161,7 +161,7 @@ public strictfp class RobotPlayer {
         if(rc.canMove(dir)) rc.move(dir);
     }
 
-    static void moveTowards(RobotController rc, MapLocation loc) throws GameActionException{
+    public static void moveTowards(RobotController rc, MapLocation loc) throws GameActionException{
         Direction dir = rc.getLocation().directionTo(loc);
         if(rc.canMove(dir)) rc.move(dir);
         else moveRandom(rc);
