@@ -1,13 +1,10 @@
-package lectureplayer;
+package thebettercompbot;
 
 import battlecode.common.*;
+import thebettercompbot.CarrierStrategy;
+import thebettercompbot.LauncherStrategy;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * RobotPlayer is the class that describes your main robot strategy.
@@ -118,9 +115,9 @@ public strictfp class RobotPlayer {
         Direction dir = directions[rng.nextInt(directions.length)];
         MapLocation newLoc = rc.getLocation().add(dir);
         if (turnCount == 1) {
-            Communication.addHeadquarter(rc);
+            thebettercompbot.Communication.addHeadquarter(rc);
         } else if (turnCount == 2) {
-            Communication.updateHeadquarterInfo(rc);
+            thebettercompbot.Communication.updateHeadquarterInfo(rc);
         }
         if (rc.canBuildAnchor(Anchor.STANDARD) && rc.getResourceAmount(ResourceType.ADAMANTIUM) > 100) {
             // If we can build an anchor do it!
@@ -152,7 +149,7 @@ public strictfp class RobotPlayer {
             }
             rc.setIndicatorString("Trying to build a launcher");
         }
-        Communication.tryWriteMessages(rc);
+        thebettercompbot.Communication.tryWriteMessages(rc);
 
     }
 
@@ -161,7 +158,7 @@ public strictfp class RobotPlayer {
         if(rc.canMove(dir)) rc.move(dir);
     }
 
-    public static void moveTowards(RobotController rc, MapLocation loc) throws GameActionException{
+    static void moveTowards(RobotController rc, MapLocation loc) throws GameActionException{
         Direction dir = rc.getLocation().directionTo(loc);
         if(rc.canMove(dir)) rc.move(dir);
         else moveRandom(rc);
