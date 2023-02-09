@@ -4,7 +4,7 @@ import battlecode.common.*;
 import elicompbot.CarrierStrategy;
 import elicompbot.LauncherStrategy;
 
-import java.util.Random;
+import java.util.*;
 
 /**
  * RobotPlayer is the class that describes your main robot strategy.
@@ -115,14 +115,14 @@ public strictfp class RobotPlayer {
         Direction dir = directions[rng.nextInt(directions.length)];
         MapLocation newLoc = rc.getLocation().add(dir);
         if (turnCount == 1) {
-            elicompbot.Communication.addHeadquarter(rc);
+            Communication.addHeadquarter(rc);
         } else if (turnCount == 2) {
-            elicompbot.Communication.updateHeadquarterInfo(rc);
+            Communication.updateHeadquarterInfo(rc);
         }
         if (rc.canBuildAnchor(Anchor.STANDARD) && rc.getResourceAmount(ResourceType.ADAMANTIUM) > 100) {
             // If we can build an anchor do it!
             rc.buildAnchor(Anchor.STANDARD);
-            rc.setIndicatorString("Building anchor! " + rc.getNumAnchors(Anchor.STANDARD));
+            rc.setIndicatorString("Building anchor! " + rc.getAnchor());
         }
         if(rc.canBuildAnchor(Anchor.ACCELERATING) && rc.getResourceAmount(ResourceType.ELIXIR) > 500) {
             rc.buildAnchor(Anchor.ACCELERATING);
@@ -153,7 +153,7 @@ public strictfp class RobotPlayer {
             }
             rc.setIndicatorString("Trying to build a launcher");
         }
-        elicompbot.Communication.tryWriteMessages(rc);
+        Communication.tryWriteMessages(rc);
 
     }
 
@@ -167,5 +167,42 @@ public strictfp class RobotPlayer {
         if(rc.canMove(dir)) rc.move(dir);
         else moveRandom(rc);
     }
+    
+}
+class Pathing {
+    // Basic bug nav - Bug 0
 
+    static Direction currentDirection = null;
+    private static Scanner rng;
+
+    static void moveTowards(RobotController rc, MapLocation target) throws GameActionException {
+        if (rc.getLocation().equals(target)) {
+            return;
+        }
+        if (!rc.isMovementReady()) {
+            return;
+        }
+        Direction d = rc.getLocation().directionTo(target);
+        if (rc.canMove(d)) {
+            rc.move(d);
+            currentDirection = null; // there is no obstacle we're going around
+        } else {
+            // Going around some obstacle: can't move towards d because there's an obstacle there
+            // Idea: keep the obstacle on our right hand
+
+            if (currentDirection == null) {
+                currentDirection = d;
+            }
+            // Try to move in a way that keeps the obstacle on our right
+            for (int i = 0; i < 8; i++) {
+                if (rc.canMove(currentDirection)) {
+                    rc.move(currentDirection);
+                    currentDirection = currentDirection.rotateRight();
+                    break;
+                } else {
+                    currentDirection = currentDirection.rotateLeft();
+                }
+            }
+        }
+    }
 }
