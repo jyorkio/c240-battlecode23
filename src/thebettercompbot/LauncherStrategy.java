@@ -76,4 +76,17 @@ public class LauncherStrategy {
             rc.move(dir);
         }
     }
+    static void scanIslands(RobotController rc) throws GameActionException {
+        int[] ids = rc.senseNearbyIslands();
+        for(int id : ids) {
+            if(rc.senseTeamOccupyingIsland(id) == Team.NEUTRAL) {
+                MapLocation[] locs = rc.senseNearbyIslandLocations(id);
+                if(locs.length > 0) {
+                    islandLoc = locs[0];
+                    break;
+                }
+            }
+            Communication.updateIslandInfo(rc, id);
+        }
+    }
 }
