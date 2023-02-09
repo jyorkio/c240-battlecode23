@@ -6,6 +6,8 @@ import elicompbot.RobotPlayer;
 
 public class LauncherStrategy {
 
+    private static MapLocation[] islands;
+
     /**
      * Run a single turn for a Launcher.
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
@@ -19,7 +21,7 @@ public class LauncherStrategy {
         int smallestDistance = 100;
         RobotInfo target = null;
         if (RobotPlayer.turnCount == 2) {
-            elicompbot.Communication.updateHeadquarterInfo(rc);
+            Communication.updateHeadquarterInfo(rc);
         }
      //   Communication.clearObsoleteEnemies(rc);
         if (enemies.length > 0) {
@@ -66,6 +68,16 @@ public class LauncherStrategy {
                 MapLocation center = new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2);
                 Pathing.moveTowards(rc, center);
                 rc.setIndicatorString("I'm the leader!");
+            }
+        }
+
+        if (target == null){
+            islands = rc.senseNearbyIslandLocations(10);
+            if (islands.length > 0) {
+                MapLocation islandsLoc = islands[0];
+                Direction dir = rc.getLocation().directionTo(islandsLoc);
+                if(rc.canMove(dir))
+                    rc.move(dir);
             }
         }
 

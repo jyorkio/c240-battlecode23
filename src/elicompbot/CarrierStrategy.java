@@ -4,6 +4,9 @@ import battlecode.common.*;
 import elicompbot.Communication;
 import elicompbot.RobotPlayer;
 
+import static battlecode.common.ResourceType.ADAMANTIUM;
+import static battlecode.common.ResourceType.MANA;
+
 public class CarrierStrategy {
     
     static MapLocation hqLoc;
@@ -29,14 +32,28 @@ public class CarrierStrategy {
         if(wellLoc != null && rc.canCollectResource(wellLoc, -1)) rc.collectResource(wellLoc, -1);
 
         //Transfer resource to headquarters
-        depositResource(rc, ResourceType.ADAMANTIUM);
+        depositResource(rc, ADAMANTIUM);
         depositResource(rc, ResourceType.MANA);
 
         if(rc.canTakeAnchor(hqLoc, Anchor.STANDARD)) {
             rc.takeAnchor(hqLoc, Anchor.STANDARD);
             anchorMode = true;
         }
-        
+
+        // Make elixir wells if possible.
+        //if(wellLoc != null && rc.getResourceAmount(ADAMANTIUM) > 30 && rc.canTransferResource(wellLoc, ADAMANTIUM, 30)) {
+            //WellInfo[] manawell = rc.senseNearbyWells(MANA);
+            //WellInfo w;
+            //if(manawell.length > 0)
+                //w = manawell[0];
+                //rc.transferResource(w.getMapLocation(), ADAMANTIUM, 30);}
+        if(wellLoc != null && rc.getResourceAmount(ADAMANTIUM) > 30 && rc.getRoundNum() < 300 && rc.canTransferResource(wellLoc, ADAMANTIUM, 30)) {
+            rc.transferResource(wellLoc, ADAMANTIUM, 30);
+        }
+
+        if(wellLoc != null && rc.getResourceAmount(MANA) > 30 && rc.getRoundNum() < 300 && rc.canTransferResource(wellLoc, MANA, 30)) {
+            rc.transferResource(wellLoc, MANA, 30);
+        }
         //no resources -> look for well
         if(anchorMode) {
             if(islandLoc == null) {
@@ -93,7 +110,7 @@ public class CarrierStrategy {
     }
 
     static int getTotalResources(RobotController rc) {
-        return rc.getResourceAmount(ResourceType.ADAMANTIUM) 
+        return rc.getResourceAmount(ADAMANTIUM)
             + rc.getResourceAmount(ResourceType.MANA) 
             + rc.getResourceAmount(ResourceType.ELIXIR);
     }

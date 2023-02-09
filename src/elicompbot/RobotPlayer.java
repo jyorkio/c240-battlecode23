@@ -124,6 +124,10 @@ public strictfp class RobotPlayer {
             rc.buildAnchor(Anchor.STANDARD);
             rc.setIndicatorString("Building anchor! " + rc.getNumAnchors(Anchor.STANDARD));
         }
+        if(rc.canBuildAnchor(Anchor.ACCELERATING) && rc.getResourceAmount(ResourceType.ELIXIR) > 500) {
+            rc.buildAnchor(Anchor.ACCELERATING);
+            rc.setIndicatorString("Building accelerating anchor!" + rc.getNumAnchors(Anchor.ACCELERATING));
+        }
         if (rng.nextBoolean()) {
             // Let's try to build a carrier.
             rc.setIndicatorString("Trying to build a carrier");
