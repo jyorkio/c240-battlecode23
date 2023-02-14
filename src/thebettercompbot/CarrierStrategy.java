@@ -18,37 +18,57 @@ public class CarrierStrategy {
     static void runCarrier(RobotController rc) throws GameActionException {
         if (RobotPlayer.turnCount == 2) {
             Communication.updateHeadquarterInfo(rc);
+            rc.setIndicatorString("alive");
         }
-        if(hqLoc == null) scanHQ(rc);
-        if(wellLoc == null) scanWells(rc);
+        //rc.readSharedArray()
+
+        if(hqLoc == null) {
+            scanHQ(rc);
+            rc.setIndicatorString("scanHQ");
+        }
+        if(wellLoc == null) {
+            scanWells(rc);
+            rc.setIndicatorString("scanWells");
+        }
         scanIslands(rc);
 
+
         //Collect from well if close and inventory not full
-        if(wellLoc != null && rc.canCollectResource(wellLoc, -1)) rc.collectResource(wellLoc, -1);
+        if(wellLoc != null && rc.canCollectResource(wellLoc, -1)) {
+            rc.collectResource(wellLoc, -1);
+            rc.setIndicatorString("collectingResources");
+        }
 
         //Transfer resource to headquarters
         depositResource(rc, ResourceType.ADAMANTIUM);
         depositResource(rc, ResourceType.MANA);
-        //upgrade Adamantium well if available resources
-        int totalAdam = rc.getResourceAmount(ResourceType.ADAMANTIUM);
-        if (totalAdam > 1400 & rc.canTransferResource(wellLoc, ResourceType.ADAMANTIUM, 1400)) {
-            rc.transferResource(wellLoc, ResourceType.ADAMANTIUM, 1400);
-        }
-        // upgrade mana well is possible
-        int totalMana = rc.getResourceAmount(ResourceType.MANA);
-        if (totalMana > 1400 & rc.canTransferResource(wellLoc, ResourceType.MANA, 1400)) {
-            rc.transferResource(wellLoc, ResourceType.MANA, 1400);
-        }
+
+
         if(rc.canTakeAnchor(hqLoc, Anchor.ACCELERATING)){
             rc.takeAnchor(hqLoc, Anchor.ACCELERATING);
+            rc.setIndicatorString("acceleratingAnchorMode");
             anchorMode = true;
         }
 
         if(rc.canTakeAnchor(hqLoc, Anchor.STANDARD)) {
             rc.takeAnchor(hqLoc, Anchor.STANDARD);
+            rc.setIndicatorString("AnchorMode");
             anchorMode = true;
         }
 
+        //upgrade Adamantium well if available resources
+        int totalAdam = rc.getResourceAmount(ResourceType.ADAMANTIUM);
+        if (totalAdam > 1400 & rc.canTransferResource(wellLoc, ResourceType.ADAMANTIUM, 1400)) {
+            rc.transferResource(wellLoc, ResourceType.ADAMANTIUM, 1400);
+            rc.setIndicatorString("upgradeAdam");
+        }
+
+        // upgrade mana well is possible
+        int totalMana = rc.getResourceAmount(ResourceType.MANA);
+        if (totalMana > 1400 & rc.canTransferResource(wellLoc, ResourceType.MANA, 1400)) {
+            rc.transferResource(wellLoc, ResourceType.MANA, 1400);
+            rc.setIndicatorString("upgradeMana");
+        }
         //no resources -> look for well
         if(anchorMode) {
             if(islandLoc == null) {
@@ -139,6 +159,11 @@ public class CarrierStrategy {
     static void scanWells(RobotController rc) throws GameActionException {
         WellInfo[] wells = rc.senseNearbyWells();
         if(wells.length > 0) wellLoc = wells[0].getMapLocation();
+        if(wellLoc == null) {
+            if ((RobotPlayer.turnCount % 5) == 0) {
+                thebettercompbot.RobotPlayer.moveRandom(rc);
+            }
+        }
     }
 
     static void depositResource(RobotController rc, ResourceType type) throws GameActionException {
@@ -156,6 +181,7 @@ public class CarrierStrategy {
 
     static void scanIslands(RobotController rc) throws GameActionException {
         int[] ids = rc.senseNearbyIslands();
+        rc.setIndicatorString("scanIslands");
         for(int id : ids) {
             if(rc.senseTeamOccupyingIsland(id) == Team.NEUTRAL) {
                 MapLocation[] locs = rc.senseNearbyIslandLocations(id);

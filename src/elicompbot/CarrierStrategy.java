@@ -24,6 +24,7 @@ public class CarrierStrategy {
         if (RobotPlayer.turnCount == 2) {
             Communication.updateHeadquarterInfo(rc);
         }
+
         if(hqLoc == null) scanHQ(rc);
         if(wellLoc == null) scanWells(rc);
         scanIslands(rc);
