@@ -21,68 +21,57 @@ public class LauncherStrategy {
         if (RobotPlayer.turnCount == 2) {
             thebettercompbot.Communication.updateHeadquarterInfo(rc);
         }
-        Communication.clearObsoleteEnemies(rc);
+        //Communication.clearObsoleteEnemies(rc);
         if (enemies.length > 0) {
-            for (RobotInfo enemy: enemies){
+            for (RobotInfo enemy : enemies) {
                 Communication.reportEnemy(rc, enemy.location);
                 int enemyHealth = enemy.getHealth();
                 int enemyDistance = enemy.getLocation().distanceSquaredTo(rc.getLocation());
-                if (enemyHealth < lowestHealth){
+                if (enemyHealth < lowestHealth) {
                     target = enemy;
                     lowestHealth = enemyHealth;
                     smallestDistance = enemyDistance;
-                }
-                else if (enemyHealth == lowestHealth){
-                    if (enemyDistance < smallestDistance){
+                } else if (enemyHealth == lowestHealth) {
+                    if (enemyDistance < smallestDistance) {
                         target = enemy;
                         smallestDistance = enemyDistance;
                     }
                 }
             }
         }
-        Communication.tryWriteMessages(rc);
-        if (target != null){
+        //Communication.tryWriteMessages(rc);
+        if (target != null) {
             if (rc.canAttack(target.getLocation()))
                 rc.attack(target.getLocation());
             Pathing.moveTowards(rc, target.getLocation());
-        }
-        else {
+        } else {
             RobotInfo[] allies = rc.senseNearbyRobots(9, rc.getTeam());
             int lowestID = rc.getID();
             MapLocation leaderPos = null;
-            for (RobotInfo ally : allies){
+            for (RobotInfo ally : allies) {
                 if (ally.getType() != RobotType.LAUNCHER)
                     continue;
-                if (ally.getID() < lowestID){
+                if (ally.getID() < lowestID) {
                     lowestID = ally.getID();
                     leaderPos = ally.getLocation();
                 }
             }
-            if (leaderPos != null){
+            if (leaderPos != null) {
                 Pathing.moveTowards(rc, leaderPos);
                 rc.setIndicatorString("Following " + lowestID);
-            }
-            else{
-                MapLocation center = new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2);
+            } else {
+                MapLocation center = new MapLocation(rc.getMapWidth() / 2, rc.getMapHeight() / 2);
                 Pathing.moveTowards(rc, center);
                 rc.setIndicatorString("I'm the leader!");
             }
         }
 
-        
+
         // Also try to move randomly.
         Direction dir = RobotPlayer.directions[RobotPlayer.rng.nextInt(RobotPlayer.directions.length)];
         if (rc.canMove(dir)) {
             rc.move(dir);
         }
-        static MapLocation readIslandLocation(RobotController rc, int islandId) {
-            try {
-                islandId = islandId + STARTING_ISLAND_IDX;
-                int islandInt = rc.readSharedArray(islandId);
-                int idx = islandInt >> (HEALTH_BITS + TEAM_BITS);
-                return intToLocation(rc, idx);
-            } catch (GameActionException e) {}
-            return null;
-        }
+
     }
 }

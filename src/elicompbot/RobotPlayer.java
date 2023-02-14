@@ -169,7 +169,7 @@ public strictfp class RobotPlayer {
     }
     
 }
-class Pathing {
+/*class Pathing {
     // Basic bug nav - Bug 0
 
     static Direction currentDirection = null;
@@ -206,3 +206,4 @@ class Pathing {
         }
     }
 }
+ */
