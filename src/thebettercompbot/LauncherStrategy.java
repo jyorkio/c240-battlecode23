@@ -21,10 +21,10 @@ public class LauncherStrategy {
         if (RobotPlayer.turnCount == 2) {
             thebettercompbot.Communication.updateHeadquarterInfo(rc);
         }
-     //   Communication.clearObsoleteEnemies(rc);
+        Communication.clearObsoleteEnemies(rc);
         if (enemies.length > 0) {
             for (RobotInfo enemy: enemies){
-         //       Communication.reportEnemy(rc, enemy.location);
+                Communication.reportEnemy(rc, enemy.location);
                 int enemyHealth = enemy.getHealth();
                 int enemyDistance = enemy.getLocation().distanceSquaredTo(rc.getLocation());
                 if (enemyHealth < lowestHealth){
@@ -40,7 +40,7 @@ public class LauncherStrategy {
                 }
             }
         }
-     //   Communication.tryWriteMessages(rc);
+        Communication.tryWriteMessages(rc);
         if (target != null){
             if (rc.canAttack(target.getLocation()))
                 rc.attack(target.getLocation());
@@ -74,6 +74,15 @@ public class LauncherStrategy {
         Direction dir = RobotPlayer.directions[RobotPlayer.rng.nextInt(RobotPlayer.directions.length)];
         if (rc.canMove(dir)) {
             rc.move(dir);
+        }
+        static MapLocation readIslandLocation(RobotController rc, int islandId) {
+            try {
+                islandId = islandId + STARTING_ISLAND_IDX;
+                int islandInt = rc.readSharedArray(islandId);
+                int idx = islandInt >> (HEALTH_BITS + TEAM_BITS);
+                return intToLocation(rc, idx);
+            } catch (GameActionException e) {}
+            return null;
         }
     }
 }
