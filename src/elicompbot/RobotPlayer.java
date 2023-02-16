@@ -169,6 +169,7 @@ public strictfp class RobotPlayer {
     }
     
 }
+
 class Pathing2 {
     // Basic bug nav - Bug 0
 
