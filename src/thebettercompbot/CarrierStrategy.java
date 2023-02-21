@@ -32,17 +32,18 @@ public class CarrierStrategy {
         }
         scanIslands(rc);
 
+        int totalResources = getTotalResources(rc);
+        if (totalResources < 1000) {
+            //Collect from well if close and inventory not full
+            if (wellLoc != null && rc.canCollectResource(wellLoc, -1)) {
+                rc.collectResource(wellLoc, -1);
+                rc.setIndicatorString("collectingResources");
+            }
 
-        //Collect from well if close and inventory not full
-        if(wellLoc != null && rc.canCollectResource(wellLoc, -1)) {
-            rc.collectResource(wellLoc, -1);
-            rc.setIndicatorString("collectingResources");
+            //Transfer resource to headquarters
+            depositResource(rc, ResourceType.ADAMANTIUM);
+            depositResource(rc, ResourceType.MANA);
         }
-
-        //Transfer resource to headquarters
-        depositResource(rc, ResourceType.ADAMANTIUM);
-        depositResource(rc, ResourceType.MANA);
-
 
         if(rc.canTakeAnchor(hqLoc, Anchor.ACCELERATING)){
             rc.takeAnchor(hqLoc, Anchor.ACCELERATING);
@@ -54,6 +55,7 @@ public class CarrierStrategy {
             rc.takeAnchor(hqLoc, Anchor.STANDARD);
             rc.setIndicatorString("AnchorMode");
             anchorMode = true;
+            RobotPlayer.moveTowards(rc, islandLoc);
         }
 
         //upgrade Adamantium well if available resources
@@ -69,6 +71,22 @@ public class CarrierStrategy {
             rc.transferResource(wellLoc, ResourceType.MANA, 1400);
             rc.setIndicatorString("upgradeMana");
         }
+
+        //upgrade opposite well to elixir
+        WellInfo[] wells = rc.senseNearbyWells();
+        for(WellInfo w : wells) {
+            if (w.getResourceType() == ResourceType.ADAMANTIUM & totalMana > 600 & rc.canTransferResource(wellLoc, ResourceType.MANA, 600)) {
+                RobotPlayer.moveTowards(rc, wellLoc);
+                rc.transferResource(wellLoc, ResourceType.MANA, 600);
+                rc.setIndicatorString("upgradeToElixir");
+                }
+            if (w.getResourceType() == ResourceType.MANA & totalAdam > 600 & rc.canTransferResource(wellLoc, ResourceType.ADAMANTIUM, 600)){
+                RobotPlayer.moveTowards(rc, wellLoc);
+                rc.transferResource(wellLoc, ResourceType.ADAMANTIUM,600 );
+                rc.setIndicatorString("upgradeToElixir");
+            }
+        }
+
         //no resources -> look for well
         if(anchorMode) {
             if(islandLoc == null) {
@@ -88,13 +106,12 @@ public class CarrierStrategy {
             }
         }
         else {
-            int total = getTotalResources(rc);
-            if(total == 0) {
+            if(totalResources == 0) {
                 //move towards well or search for well
                 if(wellLoc == null) thebettercompbot.RobotPlayer.moveRandom(rc);
                 else if(!rc.getLocation().isAdjacentTo(wellLoc)) thebettercompbot.RobotPlayer.moveTowards(rc, wellLoc);
             }
-            if(total == GameConstants.CARRIER_CAPACITY) {
+            if(totalResources == GameConstants.CARRIER_CAPACITY) {
                 //move towards HQ
                 thebettercompbot.RobotPlayer.moveTowards(rc, hqLoc);
             }
