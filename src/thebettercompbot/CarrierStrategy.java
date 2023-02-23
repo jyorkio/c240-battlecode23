@@ -20,8 +20,7 @@ public class CarrierStrategy {
             Communication.updateHeadquarterInfo(rc);
             rc.setIndicatorString("alive");
         }
-        //rc.readSharedArray()
-
+        //rc.readSharedArray(1);
         if(hqLoc == null) {
             scanHQ(rc);
             rc.setIndicatorString("scanHQ");
@@ -33,17 +32,16 @@ public class CarrierStrategy {
         scanIslands(rc);
 
         int totalResources = getTotalResources(rc);
-        if (totalResources < 1000) {
-            //Collect from well if close and inventory not full
-            if (wellLoc != null && rc.canCollectResource(wellLoc, -1)) {
-                rc.collectResource(wellLoc, -1);
-                rc.setIndicatorString("collectingResources");
-            }
-
-            //Transfer resource to headquarters
-            depositResource(rc, ResourceType.ADAMANTIUM);
-            depositResource(rc, ResourceType.MANA);
+        //Collect from well if close and inventory not full
+        if (wellLoc != null && rc.canCollectResource(wellLoc, -1)) {
+            rc.collectResource(wellLoc, -1);
+            rc.setIndicatorString("collectingResources");
         }
+
+        //Transfer resource to headquarters
+        depositResource(rc, ResourceType.ADAMANTIUM);
+        depositResource(rc, ResourceType.MANA);
+
 
         if(rc.canTakeAnchor(hqLoc, Anchor.ACCELERATING)){
             rc.takeAnchor(hqLoc, Anchor.ACCELERATING);
@@ -108,7 +106,25 @@ public class CarrierStrategy {
         else {
             if(totalResources == 0) {
                 //move towards well or search for well
-                if(wellLoc == null) thebettercompbot.RobotPlayer.moveRandom(rc);
+                if(wellLoc == null) {
+                    int mapH = rc.getMapHeight();
+                    int mapW = rc.getMapWidth();
+                    MapLocation botLocation = rc.getLocation();
+                    thebettercompbot.RobotPlayer.moveTowards(rc, getMapSize(rc));
+                    rc.setIndicatorString("movetowardsCenter");
+                    if (((botLocation.x) <= (mapW / 4)) && (botLocation.y <= (mapH/4))) {
+                        rc.move(Direction.NORTHEAST);
+                        rc.setIndicatorString("movingNorthEast");
+                    }
+                    else if (((botLocation.y) <= (mapH / 4))) {
+                        rc.move(Direction.NORTH);
+                        rc.setIndicatorString("movingNorth");
+                    }
+                    else if (((botLocation.y) >= (mapH * (3/4)))) {
+                        rc.move(Direction.SOUTH);
+                        rc.setIndicatorString("movingSouth");
+                    }
+                }
                 else if(!rc.getLocation().isAdjacentTo(wellLoc)) thebettercompbot.RobotPlayer.moveTowards(rc, wellLoc);
             }
             if(totalResources == GameConstants.CARRIER_CAPACITY) {
@@ -117,8 +133,20 @@ public class CarrierStrategy {
             }
         }
         thebettercompbot.Communication.tryWriteMessages(rc);
-    }
+
     //    Communication.tryWriteMessages(rc);
+    }
+
+    //get center coordinates of the map
+    static MapLocation getMapSize(RobotController rc) {
+        int mapH = rc.getMapHeight();
+        int mapW = rc.getMapWidth();
+        int centerH = (mapH / 2);
+        int centerW = (mapW / 2);
+        MapLocation center = new MapLocation(centerW,centerH);
+        return center;
+    }
+
     // carrier focused on gathering resources
     static void getResources(RobotController rc) throws GameActionException {
         System.out.println("Resource bot is running");
@@ -141,7 +169,6 @@ public class CarrierStrategy {
             RobotPlayer.moveTowards(rc, hqLoc);
         }
     }
-
     // carrier focused on placing anchors
     static void anchorBot(RobotController rc) throws GameActionException {
         rc.takeAnchor(hqLoc, Anchor.STANDARD);
@@ -204,7 +231,7 @@ public class CarrierStrategy {
                 MapLocation[] locs = rc.senseNearbyIslandLocations(id);
                 if(locs.length > 0) {
                     islandLoc = locs[0];
-                    break;
+                    //break;
                 }
             }
             Communication.updateIslandInfo(rc, id);
