@@ -86,7 +86,7 @@ public class CarrierStrategy {
             else RobotPlayer.moveTowards(rc, islandLoc);
             rc.setIndicatorString("moving towards an island");
 
-            if(rc.canPlaceAnchor() && rc.senseTeamOccupyingIsland(rc.senseIsland(rc.getLocation())) == Team.NEUTRAL) {
+            if(rc.canPlaceAnchor() && rc.senseTeamOccupyingIsland(rc.senseIsland(rc.getLocation())) == Team.NEUTRAL && RobotPlayer.turnCount <600)  {
                 rc.placeAnchor(); rc.setIndicatorString("placing an anchor");
                 anchorMode = false;
             }
