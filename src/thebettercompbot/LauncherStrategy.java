@@ -91,4 +91,19 @@ public class LauncherStrategy {
         }
 
     }
+    private static final int HEALTH_BITS = 3;
+    static final int STARTING_ISLAND_IDX = GameConstants.MAX_STARTING_HEADQUARTERS;
+    static Team readTeamHoldingIsland(RobotController rc, int islandId) {
+        try {
+            islandId = islandId + STARTING_ISLAND_IDX;
+            int islandInt = rc.readSharedArray(islandId);
+            int healthMask = 0b111;
+            int health = islandInt & healthMask;
+            int team = (islandInt >> HEALTH_BITS) % 0b1;
+            if (health > 0) {
+                return Team.values()[team];
+            }
+        } catch (GameActionException e) {}
+        return Team.NEUTRAL;
+    }
 }
