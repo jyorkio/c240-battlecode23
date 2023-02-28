@@ -25,19 +25,19 @@ public class CarrierStrategy {
             Communication.updateHeadquarterInfo(rc);
         }
 
-        if(hqLoc == null) scanHQ(rc); rc.setIndicatorString("scanning hq");
-        if(wellLoc == null) scanWells(rc); rc.setIndicatorString("scanning wells");
+        scanHQ(rc); rc.setIndicatorString("scanning hq");
+        //scanWells(rc); rc.setIndicatorString("scanning wells");
 
 
         scanIslands(rc);
 
         if(wellLoc == null && RobotPlayer.turnCount < 2000) {
-            RobotPlayer.moveRandom(rc);
+            RobotPlayer.moveRandom(rc); scanWells(rc);
             rc.setIndicatorString("move randomly to find wells");
         }
 
         //Collect from well if close and inventory not full
-        if(wellLoc != null && rc.canCollectResource(wellLoc, -1) && RobotPlayer.turnCount < 300) {
+        if(wellLoc != null && rc.canCollectResource(wellLoc, -1) && RobotPlayer.turnCount < 1000) {
             rc.collectResource(wellLoc, -1);
             rc.setIndicatorString("Collecting");
         }
@@ -47,30 +47,31 @@ public class CarrierStrategy {
         depositResource(rc, ResourceType.MANA);
         depositResource(rc, ResourceType.ELIXIR);
 
+        if(wellLoc != null && rc.getResourceAmount(ADAMANTIUM) > 30 && RobotPlayer.turnCount < 300 && rc.canTransferResource(wellLoc, ADAMANTIUM, 30)) {
+            rc.transferResource(wellLoc, ADAMANTIUM, 30); rc.setIndicatorString("upgrading a");
+        }
 
-        if(rc.canTakeAnchor(hqLoc, Anchor.STANDARD)) {
+        if(wellLoc != null && rc.getResourceAmount(MANA) > 30 && RobotPlayer.turnCount < 300 && rc.canTransferResource(wellLoc, MANA, 30)) {
+            rc.transferResource(wellLoc, MANA, 30); rc.setIndicatorString("upgrading m");
+        }
+
+
+        if(rc.canTakeAnchor(hqLoc, Anchor.STANDARD) && 750 < RobotPlayer.turnCount && RobotPlayer.turnCount < 2000) {
             rc.takeAnchor(hqLoc, Anchor.STANDARD);
             rc.setIndicatorString("Taking Anchor");
             anchorMode = true;
         }
 
         // Make elixir wells if possible.
-        WellInfo[] manawell = rc.senseNearbyWells(MANA);
+        /*WellInfo[] manawell = rc.senseNearbyWells(MANA);
         WellInfo w = manawell[0];
         if(wellLoc != null && rc.getResourceAmount(ADAMANTIUM) > 30 && rc.canTransferResource(w.getMapLocation(), ADAMANTIUM, 30)) {
             if(manawell.length > 0 && 300 < RobotPlayer.turnCount && RobotPlayer.turnCount < 2000) {
                 rc.transferResource(w.getMapLocation(), ADAMANTIUM, 30);
                 rc.setIndicatorString("Making Elixir Well!");
             }
-        }
-
-        /*if(wellLoc != null && rc.getResourceAmount(ADAMANTIUM) > 30 && rc.getRoundNum() < 300 && rc.canTransferResource(wellLoc, ADAMANTIUM, 30)) {
-            //rc.transferResource(wellLoc, ADAMANTIUM, 30);
-        }
-
-        if(wellLoc != null && rc.getResourceAmount(MANA) > 30 && rc.getRoundNum() < 300 && rc.canTransferResource(wellLoc, MANA, 30)) {
-            rc.transferResource(wellLoc, MANA, 30);
         }*/
+
         //no resources -> look for well
         if(anchorMode) {
             if(islandLoc == null) {
@@ -86,7 +87,7 @@ public class CarrierStrategy {
             else RobotPlayer.moveTowards(rc, islandLoc);
             rc.setIndicatorString("moving towards an island");
 
-            if(rc.canPlaceAnchor() && rc.senseTeamOccupyingIsland(rc.senseIsland(rc.getLocation())) == Team.NEUTRAL) {
+            if(rc.canPlaceAnchor() && rc.senseTeamOccupyingIsland(rc.senseIsland(rc.getLocation())) == Team.NEUTRAL && RobotPlayer.turnCount <600)  {
                 rc.placeAnchor(); rc.setIndicatorString("placing an anchor");
                 anchorMode = false;
             }
@@ -105,6 +106,10 @@ public class CarrierStrategy {
                 //move towards HQ
                 RobotPlayer.moveTowards(rc, hqLoc);
                 rc.setIndicatorString("moving to hq");
+            }
+            if (islandLoc == null && wellLoc == null){
+                MapLocation center = new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2);
+                Pathing.moveTowards(rc, center);
             }
         }
         Communication.tryWriteMessages(rc);
