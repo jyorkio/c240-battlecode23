@@ -72,7 +72,7 @@ public class CarrierStrategy {
         //no resources -> look for well
         if(anchorMode) {
             if(islandLoc == null) {
-                for (int i = thebettercompbot.Communication.STARTING_ISLAND_IDX; i < thebettercompbot.Communication.STARTING_ISLAND_IDX + GameConstants.MIN_NUMBER_ISLANDS; i++) {
+                for (int i = thebettercompbot.Communication.STARTING_ISLAND_IDX; i < thebettercompbot.Communication.STARTING_ISLAND_IDX + GameConstants.MAX_NUMBER_ISLANDS; i++) {
                     MapLocation islandNearestLoc = thebettercompbot.Communication.readIslandLocation(rc, i);
                     if (islandNearestLoc != null) {
                         islandLoc = islandNearestLoc;
@@ -132,7 +132,7 @@ public class CarrierStrategy {
         anchorMode = true;
         System.out.println("Anchor bot is running");
         if(islandLoc == null) {
-            for (int i = Communication.STARTING_ISLAND_IDX; i < Communication.STARTING_ISLAND_IDX + GameConstants.MIN_NUMBER_ISLANDS; i++) {
+            for (int i = Communication.STARTING_ISLAND_IDX; i < Communication.STARTING_ISLAND_IDX + GameConstants.MAX_NUMBER_ISLANDS; i++) {
                 MapLocation islandNearestLoc = Communication.readIslandLocation(rc, i);
                 if (islandNearestLoc != null) {
                     islandLoc = islandNearestLoc;
