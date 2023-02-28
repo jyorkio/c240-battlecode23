@@ -88,4 +88,9 @@ public class LauncherStrategy {
             rc.move(dir);
         }
     }
+
+    static void runAmplifier(RobotController rc) throws GameActionException{
+        MapLocation center = new MapLocation(rc.getMapWidth()/2, rc.getMapHeight()/2);
+        Pathing.moveTowards(rc, center);
+    }
 }

@@ -79,7 +79,7 @@ public strictfp class RobotPlayer {
                     case LAUNCHER: LauncherStrategy.runLauncher(rc); break;
                     case BOOSTER: // Examplefuncsplayer doesn't use any of these robot types below.
                     case DESTABILIZER: // You might want to give them a try!
-                    case AMPLIFIER:       break;
+                    case AMPLIFIER:  LauncherStrategy.runAmplifier(rc);     break;
                 }
 
             } catch (GameActionException e) {
@@ -128,7 +128,38 @@ public strictfp class RobotPlayer {
             rc.buildAnchor(Anchor.ACCELERATING);
             rc.setIndicatorString("Building accelerating anchor!" + rc.getNumAnchors(Anchor.ACCELERATING));
         }
-        if (rng.nextBoolean()) {
+
+        if (rc.canBuildRobot(RobotType.AMPLIFIER, newLoc) && rc.getRoundNum() == 50)
+        {
+            rc.setIndicatorString("trying to build amplifier!");
+            rc.buildRobot(RobotType.AMPLIFIER, newLoc);
+
+        }
+        if (rc.getRoundNum() < 50){
+            if (rc.canBuildRobot(RobotType.CARRIER, newLoc)) {
+                rc.buildRobot(RobotType.CARRIER, newLoc);
+            }
+
+        }
+        else if (50 < rc.getRoundNum() && rc.getRoundNum() < 1000){
+            int counter = 0;
+            while(counter != 50){
+                if (counter % 2 == 0 && rc.canBuildRobot(RobotType.LAUNCHER, newLoc)){
+                    rc.buildRobot(RobotType.LAUNCHER, newLoc);
+                    counter++;
+                }
+                else if (counter % 2 == 1 && rc.canBuildRobot(RobotType.CARRIER, newLoc)){
+                    rc.buildRobot(RobotType.CARRIER, newLoc);
+                    counter++;
+                }
+            }
+        }
+        else if(1000 < rc.getRoundNum() && rc.getRoundNum() < 2000){
+            if(rc.canBuildRobot(RobotType.LAUNCHER, newLoc)){
+                rc.buildRobot(RobotType.LAUNCHER, newLoc);
+            }
+        }
+       /* if (rng.nextBoolean()) {
             // Let's try to build a carrier.
             rc.setIndicatorString("Trying to build a carrier");
             if (rc.canBuildRobot(RobotType.CARRIER, newLoc)) {
@@ -154,7 +185,7 @@ public strictfp class RobotPlayer {
             rc.setIndicatorString("Trying to build a launcher");
         }
         Communication.tryWriteMessages(rc);
-
+*/
     }
 
     static void moveRandom(RobotController rc) throws GameActionException {
