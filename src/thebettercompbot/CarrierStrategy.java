@@ -133,6 +133,7 @@ public class CarrierStrategy {
             }
         }
         thebettercompbot.Communication.tryWriteMessages(rc);
+    }
 
     //    Communication.tryWriteMessages(rc);
     }

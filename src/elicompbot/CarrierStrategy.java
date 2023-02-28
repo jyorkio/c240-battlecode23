@@ -86,6 +86,7 @@ public class CarrierStrategy {
             }
         }
         Communication.tryWriteMessages(rc);
+
     }
 
     static void scanHQ(RobotController rc) throws GameActionException {
