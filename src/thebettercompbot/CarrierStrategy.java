@@ -20,8 +20,7 @@ public class CarrierStrategy {
             Communication.updateHeadquarterInfo(rc);
             rc.setIndicatorString("alive");
         }
-        //rc.readSharedArray()
-
+        //rc.readSharedArray(1);
         if(hqLoc == null) {
             scanHQ(rc);
             rc.setIndicatorString("scanHQ");
@@ -32,9 +31,9 @@ public class CarrierStrategy {
         }
         scanIslands(rc);
 
-
+        int totalResources = getTotalResources(rc);
         //Collect from well if close and inventory not full
-        if(wellLoc != null && rc.canCollectResource(wellLoc, -1)) {
+        if (wellLoc != null && rc.canCollectResource(wellLoc, -1)) {
             rc.collectResource(wellLoc, -1);
             rc.setIndicatorString("collectingResources");
         }
@@ -54,6 +53,7 @@ public class CarrierStrategy {
             rc.takeAnchor(hqLoc, Anchor.STANDARD);
             rc.setIndicatorString("AnchorMode");
             anchorMode = true;
+            RobotPlayer.moveTowards(rc, islandLoc);
         }
 
         //upgrade Adamantium well if available resources
@@ -69,6 +69,22 @@ public class CarrierStrategy {
             rc.transferResource(wellLoc, ResourceType.MANA, 1400);
             rc.setIndicatorString("upgradeMana");
         }
+
+        //upgrade opposite well to elixir
+        WellInfo[] wells = rc.senseNearbyWells();
+        for(WellInfo w : wells) {
+            if (w.getResourceType() == ResourceType.ADAMANTIUM & totalMana > 600 & rc.canTransferResource(wellLoc, ResourceType.MANA, 600)) {
+                RobotPlayer.moveTowards(rc, wellLoc);
+                rc.transferResource(wellLoc, ResourceType.MANA, 600);
+                rc.setIndicatorString("upgradeToElixir");
+                }
+            if (w.getResourceType() == ResourceType.MANA & totalAdam > 600 & rc.canTransferResource(wellLoc, ResourceType.ADAMANTIUM, 600)){
+                RobotPlayer.moveTowards(rc, wellLoc);
+                rc.transferResource(wellLoc, ResourceType.ADAMANTIUM,600 );
+                rc.setIndicatorString("upgradeToElixir");
+            }
+        }
+
         //no resources -> look for well
         if(anchorMode) {
             if(islandLoc == null) {
@@ -88,21 +104,50 @@ public class CarrierStrategy {
             }
         }
         else {
-            int total = getTotalResources(rc);
-            if(total == 0) {
+            if(totalResources == 0) {
                 //move towards well or search for well
-                if(wellLoc == null) thebettercompbot.RobotPlayer.moveRandom(rc);
+                if(wellLoc == null) {
+                    int mapH = rc.getMapHeight();
+                    int mapW = rc.getMapWidth();
+                    MapLocation botLocation = rc.getLocation();
+                    thebettercompbot.RobotPlayer.moveTowards(rc, getMapSize(rc));
+                    rc.setIndicatorString("movetowardsCenter");
+                    if (((botLocation.x) <= (mapW / 4)) && (botLocation.y <= (mapH/4))) {
+                        rc.move(Direction.NORTHEAST);
+                        rc.setIndicatorString("movingNorthEast");
+                    }
+                    else if (((botLocation.y) <= (mapH / 4))) {
+                        rc.move(Direction.NORTH);
+                        rc.setIndicatorString("movingNorth");
+                    }
+                    else if (((botLocation.y) >= (mapH * (3/4)))) {
+                        rc.move(Direction.SOUTH);
+                        rc.setIndicatorString("movingSouth");
+                    }
+                }
                 else if(!rc.getLocation().isAdjacentTo(wellLoc)) thebettercompbot.RobotPlayer.moveTowards(rc, wellLoc);
             }
-            if(total == GameConstants.CARRIER_CAPACITY) {
+            if(totalResources == GameConstants.CARRIER_CAPACITY) {
                 //move towards HQ
                 thebettercompbot.RobotPlayer.moveTowards(rc, hqLoc);
             }
         }
         thebettercompbot.Communication.tryWriteMessages(rc);
-
     }
+
     //    Communication.tryWriteMessages(rc);
+    }
+
+    //get center coordinates of the map
+    static MapLocation getMapSize(RobotController rc) {
+        int mapH = rc.getMapHeight();
+        int mapW = rc.getMapWidth();
+        int centerH = (mapH / 2);
+        int centerW = (mapW / 2);
+        MapLocation center = new MapLocation(centerW,centerH);
+        return center;
+    }
+
     // carrier focused on gathering resources
     static void getResources(RobotController rc) throws GameActionException {
         System.out.println("Resource bot is running");
@@ -125,7 +170,6 @@ public class CarrierStrategy {
             RobotPlayer.moveTowards(rc, hqLoc);
         }
     }
-
     // carrier focused on placing anchors
     static void anchorBot(RobotController rc) throws GameActionException {
         rc.takeAnchor(hqLoc, Anchor.STANDARD);
@@ -188,7 +232,7 @@ public class CarrierStrategy {
                 MapLocation[] locs = rc.senseNearbyIslandLocations(id);
                 if(locs.length > 0) {
                     islandLoc = locs[0];
-                    break;
+                    //break;
                 }
             }
             Communication.updateIslandInfo(rc, id);
