@@ -56,9 +56,9 @@ public strictfp class RobotPlayer {
 
         // You can also use indicators to save debug notes in replays.
         rc.setIndicatorString("Hello world!");
-        if (rc.getTeam() == Team.A) {
-            rng.nextInt();
-        }
+        //if (rc.getTeam() == Team.A) {
+        //    rng.nextInt();
+        //}
 
         while (true) {
             // This code runs during the entire lifespan of the robot, which is why it is in an infinite
@@ -124,35 +124,72 @@ public strictfp class RobotPlayer {
             rc.buildAnchor(Anchor.STANDARD);
             rc.setIndicatorString("Building anchor! " + rc.getNumAnchors(Anchor.STANDARD));
         }
-        if (rng.nextBoolean()) {
-            // Let's try to build a carrier.
-            rc.setIndicatorString("Trying to build a carrier");
-            if (rc.canBuildRobot(RobotType.CARRIER, newLoc)) {
-                rc.buildRobot(RobotType.CARRIER, newLoc);
-            }
-        } else {
-            // Let's try to build a launcher.
-            if (rc.getActionCooldownTurns() != 0 || rc.getResourceAmount(ResourceType.MANA) < 5 * RobotType.LAUNCHER.buildCostMana)
-                return;
-            int attempts = 0;
-            int numPlaced = 0;
-            while (numPlaced != 5 && attempts != 30){
-                attempts++;
+
+        if (rc.getRoundNum() <= 2000) {
+            System.out.println("10 percent, bro");
+            //if (rng.nextDouble() < 0.85) {
+                // Let's try to build a carrier.
+                rc.setIndicatorString("Trying to build a carrier");
+                System.out.println("Carrier Time");
+                if (rc.canBuildRobot(RobotType.CARRIER, newLoc)) {
+                    rc.buildRobot(RobotType.CARRIER, newLoc);
+                }
+            //} else {
+            rc.setIndicatorString("Trying to build a launcher");
+            System.out.println("Launcher Time");
                 if (rc.canBuildRobot(RobotType.LAUNCHER, newLoc)) {
                     rc.buildRobot(RobotType.LAUNCHER, newLoc);
-                    numPlaced++;
-                }
-                else{
-                     dir = directions[rng.nextInt(directions.length)];
-                    newLoc = rc.getLocation().add(dir);
                 }
             }
-            rc.setIndicatorString("Trying to build a launcher");
         }
-        thebettercompbot.Communication.tryWriteMessages(rc);
+        /*else if(rc.getRoundNum() > 200 && rc.getRoundNum()<=1200) {
+            if (rng.nextDouble() < 0.35) {
+                rc.setIndicatorString("Trying to build a carrier");
+                if (rc.canBuildRobot(RobotType.CARRIER, newLoc)) {
+                    rc.buildRobot(RobotType.CARRIER, newLoc);
+                }
+            } else {
+                rc.setIndicatorString("Trying to build a launcher");
+                if (rc.canBuildRobot(RobotType.LAUNCHER, newLoc)) {
+                    rc.buildRobot(RobotType.LAUNCHER, newLoc);
+                }
+            }
+            } else if(rc.getRoundNum() > 1200) {
+            if (rng.nextDouble() < 0.05) {
+                rc.setIndicatorString("Trying to build a carrier");
+                if (rc.canBuildRobot(RobotType.CARRIER, newLoc)) {
+                    rc.buildRobot(RobotType.CARRIER, newLoc);
+                }
+            } else {
+                rc.setIndicatorString("Trying to build a launcher");
+                if (rc.canBuildRobot(RobotType.LAUNCHER, newLoc)) {
+                    rc.buildRobot(RobotType.LAUNCHER, newLoc);
+                }
+            }
+        }
+        }
+            // Let's try to build a launcher.
+            //if (rc.getActionCooldownTurns() != 0 || rc.getResourceAmount(ResourceType.MANA) < 5 * RobotType.LAUNCHER.buildCostMana)
+               // return;
+            //int attempts = 0;
+            //int numPlaced = 0;
+            //while (numPlaced != 5 && attempts != 30){
+                //attempts++;
+                //if (rc.canBuildRobot(RobotType.LAUNCHER, newLoc)) {
+                //    rc.buildRobot(RobotType.LAUNCHER, newLoc);
+                //    numPlaced++;
+                //}
+                //else{
+                     //dir = directions[rng.nextInt(directions.length)];
+                    //newLoc = rc.getLocation().add(dir);
+                //}
+            //}
+            //rc.setIndicatorString("Trying to build a launcher");
+        //}
+        //thebettercompbot.Communication.tryWriteMessages(rc);
 
-    }
 
+*/
     static void moveRandom(RobotController rc) throws GameActionException {
         Direction dir = directions[rng.nextInt(directions.length)];
         if(rc.canMove(dir)) rc.move(dir);
