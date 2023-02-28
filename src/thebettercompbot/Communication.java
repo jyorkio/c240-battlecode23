@@ -25,7 +25,7 @@ class Communication {
 
     // Maybe you want to change this based on exact amounts which you can get on turn 1
     static final int STARTING_ISLAND_IDX = GameConstants.MAX_STARTING_HEADQUARTERS;
-    private static final int STARTING_ENEMY_IDX = GameConstants.MAX_NUMBER_ISLANDS + GameConstants.MAX_STARTING_HEADQUARTERS;
+    private static final int STARTING_ENEMY_IDX = GameConstants.MIN_NUMBER_ISLANDS + GameConstants.MAX_STARTING_HEADQUARTERS;
 
     private static final int TOTAL_BITS = 16;
     private static final int MAPLOC_BITS = 12;
