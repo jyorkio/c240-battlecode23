@@ -10,6 +10,7 @@ public class LauncherStrategy {
      * Run a single turn for a Launcher.
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
+    static MapLocation islandLoc;
     static void runLauncher(RobotController rc) throws GameActionException {
         // Try to attack someone
         int radius = rc.getType().actionRadiusSquared;
@@ -73,5 +74,36 @@ public class LauncherStrategy {
             rc.move(dir);
         }
 
+    }
+
+    static void scanIslands(RobotController rc) throws GameActionException {
+        int[] ids = rc.senseNearbyIslands();
+        rc.setIndicatorString("scanIslands");
+        for (int id : ids) {
+            if (rc.senseTeamOccupyingIsland(id) == Team.NEUTRAL) {
+                MapLocation[] locs = rc.senseNearbyIslandLocations(id);
+                if (locs.length > 0) {
+                    islandLoc = locs[0];
+                    break;
+                }
+            }
+            Communication.updateIslandInfo(rc, id);
+        }
+
+    }
+    private static final int HEALTH_BITS = 3;
+    static final int STARTING_ISLAND_IDX = GameConstants.MAX_STARTING_HEADQUARTERS;
+    static Team readTeamHoldingIsland(RobotController rc, int islandId) {
+        try {
+            islandId = islandId + STARTING_ISLAND_IDX;
+            int islandInt = rc.readSharedArray(islandId);
+            int healthMask = 0b111;
+            int health = islandInt & healthMask;
+            int team = (islandInt >> HEALTH_BITS) % 0b1;
+            if (health > 0) {
+                return Team.values()[team];
+            }
+        } catch (GameActionException e) {}
+        return Team.NEUTRAL;
     }
 }
